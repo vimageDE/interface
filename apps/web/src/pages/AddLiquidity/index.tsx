@@ -229,23 +229,29 @@ function AddLiquidity() {
       return
     }
 
+    const havenFee = await getHavenFee();
+
     if (position && account && deadline) {
       const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
       const { calldata, value } =
         hasExistingPosition && tokenId
-          ? NonfungiblePositionManager.addCallParameters(position, {
+          ? await NonfungiblePositionManager.addCallParameters(position, {
               tokenId,
               slippageTolerance: allowedSlippage,
               deadline: deadline.toString(),
               useNative,
-            })
-          : NonfungiblePositionManager.addCallParameters(position, {
+            }, 
+            havenFee
+            )
+          : await NonfungiblePositionManager.addCallParameters(position, {
               slippageTolerance: allowedSlippage,
               recipient: account,
               deadline: deadline.toString(),
               useNative,
               createPool: noLiquidity,
-            })
+            }, 
+            havenFee
+            )
 
       let txn: { to: string; data: string; value: string } = {
         to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
